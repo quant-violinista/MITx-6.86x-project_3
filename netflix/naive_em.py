@@ -37,13 +37,11 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     Returns:
         GaussianMixture: the new gaussian mixture
     """
-    weight = np.sum(self.posteriors, axis=1) / len(self.x)
-    mean = np.sum(self.posteriors * self.x, axis=1) / np.sum(self.posteriors, axis=1)
-    var = np.sum((np.transpose(np.tile(self.x, (mean.shape[0], 1)).T - mean) ** 2) * self.posteriors,
-                 axis=1) / np.sum(self.posteriors, axis=1)
-
-    self.theta = pd.DataFrame({'weight': weight, 'mean': mean, 'var': var})
-    return
+    dim = X.shape[1]
+    weight = np.sum(post, axis=0) / X.shape[0]
+    mean = np.transpose(np.transpose(np.dot(np.transpose(post), X)) / np.sum(post, axis=0))
+    var = np.sum(np.sum((X[:, np.newaxis, :] - mean) ** 2, axis=2) * post, axis=0) / (dim * np.sum(post, axis=0))
+    return GaussianMixture(mu=mean, var=var, p=weight)
 
 
 def run(X: np.ndarray, mixture: GaussianMixture,
