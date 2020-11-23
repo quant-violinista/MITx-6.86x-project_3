@@ -27,11 +27,8 @@ class ClusteringTest(unittest.TestCase):
         print('\n')
 
         mixture, post = common.init(X, 3, 0)
-        post, log_likelihood = naive_em.estep(X, mixture)
-        mixture = naive_em.mstep(X, post)
-        print('\n')
+        mixture, post, log_likelihood = naive_em.run(X, mixture)
         self.assertEqual(True, True)
-
 
 
 if __name__ == '__main__':

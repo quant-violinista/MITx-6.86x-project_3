@@ -44,8 +44,7 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     return GaussianMixture(mu=mean, var=var, p=weight)
 
 
-def run(X: np.ndarray, mixture: GaussianMixture,
-        post: np.ndarray) -> Tuple[GaussianMixture, np.ndarray, float]:
+def run(X: np.ndarray, mixture: GaussianMixture) -> Tuple[GaussianMixture, np.ndarray, float]:
     """Runs the mixture model
 
     Args:
@@ -59,4 +58,14 @@ def run(X: np.ndarray, mixture: GaussianMixture,
             for all components for all examples
         float: log-likelihood of the current assignment
     """
-    raise NotImplementedError
+    precision = 1e-6
+    error = 2 * precision
+    posterior, prev_log_likelihood = estep(X, mixture)
+    mixture = mstep(X, posterior)
+    while error > precision:
+        posterior, log_likelihood = estep(X, mixture)
+        mixture = mstep(X, posterior)
+        error = (log_likelihood - prev_log_likelihood) / abs(log_likelihood)
+        prev_log_likelihood = log_likelihood
+
+    return mixture, posterior, prev_log_likelihood
