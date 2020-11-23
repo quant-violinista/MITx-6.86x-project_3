@@ -21,13 +21,13 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     non_null_index = X > 0
     dim = np.sum(non_null_index, axis=1)
     means = non_null_index[:, np.newaxis, :] * mixture.mu
-    exponents = np.sum(X[:, np.newaxis, :] - means, axis=2) / (2 * mixture.var[np.newaxis, :])
-    weighted_likelihoods = np.transpose(1 / ((2 * np.pi * mixture.var[:, np.newaxis]) ** (dim / 2))) * np.exp(
-        -exponents) * mixture.p
-    post = np.transpose(weighted_likelihoods.T / np.sum(weighted_likelihoods, axis=1))
-    log_likelihood = np.sum(np.log(np.sum(weighted_likelihoods, axis=1)))
-    return post, log_likelihood
-
+    quadratic = np.sum((X[:, np.newaxis, :] - means) ** 2, axis=2) / (2 * mixture.var[np.newaxis, :])
+    normalization = np.transpose(dim / 2 * np.log(2 * np.pi * mixture.var[:, np.newaxis]))
+    f = np.log(mixture.p + 1e-16) - normalization - quadratic
+    f_max = np.max(f, axis=1)
+    log_likelihood = f_max + logsumexp(f.T - f_max, axis=0)
+    post = np.exp(np.transpose(f.T - log_likelihood))
+    return post, np.sum(log_likelihood).astype(float)
 
 
 def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,

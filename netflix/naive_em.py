@@ -44,7 +44,8 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     return GaussianMixture(mu=mean, var=var, p=weight)
 
 
-def run(X: np.ndarray, mixture: GaussianMixture) -> Tuple[GaussianMixture, np.ndarray, float]:
+def run(X: np.ndarray, mixture: GaussianMixture,
+        post: np.ndarray) -> Tuple[GaussianMixture, np.ndarray, float]:
     """Runs the mixture model
 
     Args:

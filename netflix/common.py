@@ -37,7 +37,7 @@ def init(X: np.ndarray, K: int,
     var = np.zeros(K)
     # Compute variance
     for j in range(K):
-        var[j] = ((X - mu[j])**2).mean()
+        var[j] = ((X - mu[j]) ** 2).mean()
 
     mixture = GaussianMixture(mu, var, p)
     post = np.ones((n, K)) / K
@@ -83,7 +83,8 @@ def plot(X: np.ndarray, mixture: GaussianMixture, post: np.ndarray,
 
 
 def rmse(X, Y):
-    return np.sqrt(np.mean((X - Y)**2))
+    return np.sqrt(np.mean((X - Y) ** 2))
+
 
 def bic(X: np.ndarray, mixture: GaussianMixture,
         log_likelihood: float) -> float:
@@ -98,4 +99,6 @@ def bic(X: np.ndarray, mixture: GaussianMixture,
     Returns:
         float: the BIC for this mixture
     """
-    raise NotImplementedError
+    p = mixture.p.shape[0] + mixture.mu.shape[0] * mixture.mu.shape[1] + mixture.var.shape[0] - 1
+    n = X.shape[0]
+    return log_likelihood - 0.5 * p * np.log(n)
