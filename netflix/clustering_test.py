@@ -76,7 +76,8 @@ class ClusteringTest(unittest.TestCase):
             print(f'Seed = {seed}\n')
             for K in K_list:
                 mixture, post = common.init(X, K, seed)
-                post, log_likelihood = em.estep(X, mixture)
+                # post, log_likelihood = em.mstep(X, post, mixture)
+                mixture = em.mstep(X, post, mixture)
                 print(f'Log likelihood for {K} clusters = {log_likelihood}')
             print('\n')
 

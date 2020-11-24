@@ -45,7 +45,20 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     Returns:
         GaussianMixture: the new gaussian mixture
     """
-    raise NotImplementedError
+    non_null_index = X.astype(bool).astype(int)
+    dim = np.sum(non_null_index, axis=1)
+    reduced_post = np.transpose(non_null_index.T[:, np.newaxis, :] * post.T)
+    no_update = np.sum(reduced_post, axis=0) < 1
+    mu = np.sum(reduced_post * X[:, np.newaxis, :], axis=0) / (np.sum(reduced_post, axis=0) + 1e-16)
+    mu[no_update] = mixture.mu[no_update]
+
+    pi = np.sum(post, axis=0) / X.shape[0]
+
+    var = np.sum(np.sum((X[:, np.newaxis, :] - mu) ** 2 * reduced_post, axis=2), axis=0) / np.transpose(
+        np.sum(dim * post.T, axis=1))
+    var[var < min_variance] = min_variance
+
+    return GaussianMixture(mu=mu, var=var, p=pi)
 
 
 def run(X: np.ndarray, mixture: GaussianMixture,
